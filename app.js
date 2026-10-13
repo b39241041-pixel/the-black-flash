@@ -354,21 +354,27 @@ document.getElementById('proxyInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') handleProxy();
 });
 
-function handleProxy() {
+const proxyConnection = new BareMux.BareMuxConnection("/baremux/worker.js");
+
+async function handleProxy() {
   let url = document.getElementById('proxyInput').value.trim();
   if (!url) return;
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  // In production this would route through Ultraviolet/Scramjet
-  // For the clone we show a message
-  alert(`🌐 Proxy request for:\n${url}\n\nConnect your proxy backend (Ultraviolet/Scramjet) to enable browsing.`);
+
+  try {
+    await registerSW(); // from the template's register-sw.js
+    const wisp = (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/wisp/';
+    if ((await proxyConnection.getTransport()) !== '/epoxy/index.mjs') {
+      await proxyConnection.setTransport('/epoxy/index.mjs', [{ wisp }]);
+    }
+    const frame = document.getElementById('proxyFrame');
+    frame.style.display = 'block';
+    frame.src = __uv$config.prefix + __uv$config.encodeUrl(url);
+  } catch (err) {
+    console.error(err);
+    alert('Proxy failed to start: ' + err.message);
+  }
 }
-
-document.querySelectorAll('.proxy-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.getElementById('proxyInput').value = chip.dataset.url;
-  });
-});
-
 
 /* ── Init ── */
 renderFeatured();
