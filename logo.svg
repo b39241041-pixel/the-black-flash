@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1a0933"/>
+      <stop offset="100%" stop-color="#080010"/>
+    </radialGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d8b4fe"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <rect width="64" height="64" rx="14" fill="none" stroke="#6b21a8" stroke-width="1.5"/>
+  <!-- Lightning bolt icon -->
+  <path d="M36 8 L22 30 L30 30 L28 56 L42 34 L34 34 Z"
+        fill="url(#bolt)" opacity="0.95"/>
+  <!-- Glow effect -->
+  <path d="M36 8 L22 30 L30 30 L28 56 L42 34 L34 34 Z"
+        fill="none" stroke="#e9d5ff" stroke-width="0.8" opacity="0.5"/>
+</svg>
