@@ -354,15 +354,25 @@ document.getElementById('proxyInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') handleProxy();
 });
 
-const proxyConnection = new BareMux.BareMuxConnection("/baremux/worker.js");
+/* ── Proxy ── */
+let proxyConnection = null;
 
 async function handleProxy() {
   let url = document.getElementById('proxyInput').value.trim();
   if (!url) return;
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
+  // Proxy scripts only exist when served from the proxy backend
+  if (typeof BareMux === 'undefined' || typeof registerSW === 'undefined' || typeof __uv$config === 'undefined') {
+    alert('Proxy backend not detected.\n\nThis page has to be served by the Node proxy server (not GitHub Pages or a local file) with the proxy scripts loaded.');
+    return;
+  }
+
   try {
-    await registerSW(); // from the template's register-sw.js
+    await registerSW();
+    if (!proxyConnection) {
+      proxyConnection = new BareMux.BareMuxConnection('/baremux/worker.js');
+    }
     const wisp = (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/wisp/';
     if ((await proxyConnection.getTransport()) !== '/epoxy/index.mjs') {
       await proxyConnection.setTransport('/epoxy/index.mjs', [{ wisp }]);
@@ -373,6 +383,19 @@ async function handleProxy() {
   } catch (err) {
     console.error(err);
     alert('Proxy failed to start: ' + err.message);
+  }
+}
+
+document.getElementById('proxyGo').addEventListener('click', handleProxy);
+document.getElementById('proxyInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleProxy();
+});
+
+document.querySelectorAll('.proxy-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.getElementById('proxyInput').value = chip.dataset.url;
+  });
+});
   }
 }
 
